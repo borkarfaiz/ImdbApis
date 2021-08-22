@@ -1,7 +1,9 @@
-from flask import Blueprint, url_for, redirect, render_template, flash
 from flask_restful import Resource, request
-from databases.database import db
 from databases.helper import get_imdb_db
+
+from flask_jwt_extended import jwt_required, get_jwt_identity
+from apps.users.helper import admin_required
+
 
 class HelloWorld(Resource):
     def get(self):
@@ -14,6 +16,8 @@ class Samjha(Resource):
 
 
 class Search(Resource):
+    @jwt_required()
+    @admin_required
     def get(self):
         import re
         imdb_db = get_imdb_db()
@@ -21,5 +25,3 @@ class Search(Resource):
         regex = re.compile(f".*{request_params}.*", re.IGNORECASE)
         list_of_movies = list(imdb_db.movies.find({'name': regex}, {"_id": 0,}).sort('99popularity', -1))
         return list_of_movies
-
-
