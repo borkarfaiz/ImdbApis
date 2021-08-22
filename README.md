@@ -12,8 +12,12 @@
 
 ## Code Deployement
 
-- The code is deployed on AWS and the public ip is http://13.233.83.60/ and the public dns is ec2-13-233-83-60.ap-south-1.compute.amazonaws.com.
+- The code is deployed on AWS and the public ip is http://13.233.83.60/.
 
 ## Scaling-Up
 
-- 
+- As of now we have single server setup.
+- we can create multiple Tiers like Web Tier, Database Tier.
+- we can use load balancers to distribute the load among the web Tier where we have multiple web servers to handle the request.
+- Database Sharding can be use to distribute the load in Database Tier.
+- We can also use Geo-DNS and create multiple centers of our application.
