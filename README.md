@@ -8,6 +8,8 @@
 ## API
 
 - All the API related documentation, examples and endpoints you can find it in [Postman Collectoin.](https://www.getpostman.com/collections/89445c51a4cac6b4399a).
+- set the global environment variable imdb_server as http://13.233.83.60/ in Postman.
+- set the local environment as well, to pass the access_token, and refresh_token in Postman.
 - JWT Authentication is used to authenticate the user.
 
 ## Code Deployement
