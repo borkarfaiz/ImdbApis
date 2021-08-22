@@ -94,6 +94,8 @@ class Movie(Resource):
         if not parsed_args:
             return 'no values provided', 400
         db = get_imdb_db()
+        if not db.movies.find_one({"_id": ObjectId(id)}):
+            return 'no record found', 404
         db.movies.find_one_and_update({"_id": ObjectId(id)}, {"$set": parsed_args})
         updated_data = db.movies.find_one({"_id": ObjectId(id)})
         updated_data["id"] = str(updated_data.pop("_id"))
