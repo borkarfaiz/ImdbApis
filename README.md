@@ -7,7 +7,7 @@
 
 ## API
 
-- All the API related documentation and endpoints you can find it in [Postman Collectoin.](https://www.getpostman.com/collections/89445c51a4cac6b4399a)
+- All the API related documentation, examples and endpoints you can find it in [Postman Collectoin.](https://www.getpostman.com/collections/89445c51a4cac6b4399a).
 - JWT Authentication is used to authenticate the user.
 
 ## Code Deployement
