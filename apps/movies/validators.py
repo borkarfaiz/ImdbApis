@@ -32,6 +32,16 @@ def validate_genre(genres):
     return genres
 
 
+def validate_genre_list(genres):
+    if ',' in genres:
+        genres = {genre.strip() for genre in genres.split(',')}
+    else:
+        genres = {genres.strip()}
+    if not genres.issubset(Genres.set_of_genere):
+        raise ValueError("Invalid genres")
+    return list(genres)
+
+
 def validate_imdb_score(score):
     if not isinstance(score, (float, int)):
         raise ValueError("Invalid Imdb rating")
@@ -39,3 +49,28 @@ def validate_imdb_score(score):
     if not 0 <= score <= 10:
         raise ValueError("Invalid Imdb rating")
     return score
+
+
+def validate_99popularity_range(values):
+    try:
+        from_, to_ = list(map(float, values.split(',')))
+    except ValueError:
+        raise ValueError("Invalid Range")
+    if from_ > to_:
+        raise ValueError("Invalid Range")
+    if not 1 <= from_ <= 99 or not 1 <= to_ <= 99:
+        raise ValueError("Invalid Range")
+    return from_, to_
+
+
+def validate_imdb_score_range(values):
+    try:
+        from_, to_ = list(map(float, values.split(',')))
+    except ValueError:
+        raise ValueError("Invalid Range")
+    if from_ > to_:
+        raise ValueError("Invalid Range")
+    if not 0 <= from_ <= 10 or not 0 <= to_ <= 10:
+        raise ValueError("Invalid Range")
+    return from_, to_
+

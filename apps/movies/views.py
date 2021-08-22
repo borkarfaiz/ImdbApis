@@ -1,12 +1,14 @@
+import re
+
 from bson.objectid import ObjectId
 from flask_restful import Resource, request
-import jwt
 from databases.helper import get_imdb_db
 
 from flask_jwt_extended import jwt_required
 from apps.users.helper import admin_required
 
-from .parser import movies_create_parser, movies_update_parser, movies_delete_parser
+from .parser import movies_create_parser, movies_update_parser, movies_delete_parser, \
+    movies_search_parser
 
 
 class Search(Resource):
@@ -26,9 +28,51 @@ class Search(Resource):
 class Movie(Resource):
     @jwt_required()
     def get(self):
-        return "get"
-    
+        parser = movies_search_parser()
+        parsed_args = parser.parse_args()
+        parsed_args = {key: value for key, value in parsed_args.items() if value is not None}
+        imdb_score_range = parsed_args.get('imdb_score_range')
+        if imdb_score_range:
+            from_, to_ = imdb_score_range
+            parsed_args.pop("imdb_score_range")
+            parsed_args.update({"imdb_score": {"$lte": to_, "$gte": from_}})
+        _99popularity_range = parsed_args.get('99popularity_range')
+        if _99popularity_range:
+            from_, to_ = _99popularity_range
+            parsed_args.pop("99popularity_range")
+            parsed_args.update({"99popularity": {"$lte": to_, "$gte": from_}})        
+        name = parsed_args.get('name')
+        if name:
+            regex = re.compile(f".*{name}.*", re.IGNORECASE)
+            parsed_args.update({'name': regex})
+        director = parsed_args.get('director')
+        if director:
+            regex = re.compile(f".*{director}.*", re.IGNORECASE)
+            parsed_args.update({'director': regex})
+        genres = parsed_args.get('genres')
+        if genres:
+            parsed_args.pop('genres')
+            parsed_args.update({"genre":{"$all": genres}})
+        db = get_imdb_db()
+        query = db.movies.find(parsed_args).sort('99popularity', -1)
+        # 
+        limit, offset = parsed_args.get('limit'), parsed_args.get('offset')
+        if limit is not None and offset is not None:
+            movies = query.skip(offset).limit(limit)
+            parsed_args.pop('limit')
+            parsed_args.pop('offset')
+        elif limit:
+            parsed_args.pop('limit')
+            movies = query.limit(limit)
+        else:
+            movies = query
+        list_of_movies = list(movies)
+        for movie in list_of_movies:
+            movie['id'] = str(movie.pop("_id"))
+        return {"result": list_of_movies, "total_count": query.count()}, 200
+
     @jwt_required()
+    @admin_required
     def delete(self):
         parser = movies_delete_parser()
         parsed_args = parser.parse_args()
@@ -41,6 +85,7 @@ class Movie(Resource):
         return deleted, 200
 
     @jwt_required()
+    @admin_required
     def put(self):
         parser = movies_update_parser()
         parsed_args = parser.parse_args()
